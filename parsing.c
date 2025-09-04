@@ -1,11 +1,18 @@
 
 #include "philo.h"
 
-int	is_int(int c)
+int	is_int(char *c)
 {
-	if (c >= '0' && c <= '9')
-		return (1);
-	return (0);
+	int	i;
+
+	i = 0;
+	while (c[i])
+	{
+		if (c[i] < '0' && c[i] > '9')
+			return (0);
+		i++;
+	}
+	return (1);
 }
 
 int	checks(char **data)

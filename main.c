@@ -6,14 +6,14 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/31 15:08:00 by ydembele          #+#    #+#             */
-/*   Updated: 2025/08/31 17:58:21 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/04 16:47:44 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 #include "../ft_libft/libft.h"
 
-long long	now_time_ms(void)
+long	now_time_ms(void)
 {
 	struct timeval	tv;
 
@@ -21,7 +21,7 @@ long long	now_time_ms(void)
 	return (tv.tv_sec * 1000LL + tv.tv_usec / 1000);
 }
 
-long long	passed_ms(long long start)
+long	passed_ms(long start)
 {
 	return (now_time_ms() - start);
 }
@@ -72,6 +72,86 @@ void	*print_world(void	*arg)
 // 		exit(EXIT_FAILURE);
 // 	return (0);
 // }
+
+long	gettime(int code)
+{
+	struct timeval tv;
+
+	if (gettimeofday(&tv, NULL))
+		exit(1);
+	if (code == SECOND)
+		return (tv.tv_sec + (tv.tv_usec / 1e6));
+	else if (code == MILLISECOND)
+		return ((tv.tv_sec * 1e3) + (tv.tv_usec / 1e3));
+	else if (code == MICROSECOND)
+		return ((tv.tv_sec * 1e6) + tv.tv_usec);
+	else
+		exit(1);
+	return (1337);
+
+}
+
+void	precise_usleep(long usec, t_table *table)
+{
+	long	start;
+	long	elapsed;
+	long	rem;
+
+	start = gettime(MICROSECOND);
+	while (gettime(MICROSECOND) - start < usec)
+	{
+		if (simulation_finish(table))
+			break ;
+		elapsed = gettime(MICROSECOND) - start;
+		rem = usec - elapsed;
+		if (rem > 1e3)
+			usleep(usec / 2);
+		else
+		{
+			while (gettime(MICROSECOND) - start < usec)
+				;
+		}
+	}
+}
+
+bool	get_bool(t_mtx *mtx, bool *value)
+{
+	bool	ret;
+
+	pthread_mutex_lock(mtx);
+	ret = *value;
+	pthread_mutex_unlock(mtx);
+	return (ret);
+}
+
+void	set_bool(t_mtx *mtx, bool *dest, bool value)
+{
+	pthread_mutex_lock(mtx);
+	*dest = value;
+	pthread_mutex_unlock(mtx);
+}
+
+long	get_long(t_mtx *mtx, long *value)
+{
+	long	ret;
+
+	pthread_mutex_lock(mtx);
+	ret = *value;
+	pthread_mutex_unlock(mtx);
+	return (ret);
+}
+
+void	set_long(t_mtx *mtx, long *dest, long value)
+{
+	pthread_mutex_lock(mtx);
+	*dest = value;
+	pthread_mutex_unlock(mtx);
+}
+
+bool	simulation_finish(t_table *table)
+{
+	return (get_bool(&table->mutex, &table->end));
+}
 
 t_philo	*ft_lstnew_philo(int i)
 {
@@ -125,6 +205,7 @@ void	init_philos(t_table *table)
 		philo->index = i + 1;
 		philo->c_eat = 0;
 		philo->table_info = table;
+		philo->full = false;
 		assign_fork(philo, table->fork, i);
 	}
 }
@@ -135,18 +216,115 @@ void	data_init(t_table *table, char **av)
 
 	i = 0;
 	table->end = false;
+	table->ready = false;
 	table->philo = my_malloc(sizeof(t_philo) * table->nb_philo);
 	table->fork = my_malloc(sizeof(t_fork) * table->nb_philo);
+	pthread_mutex_init(&table->mutex, NULL);
+	pthread_mutex_init(&table->write_lock, NULL);
 	while (i < table->nb_philo)
 	{
 		pthread_mutex_init(&table->fork[i].fork, NULL);
 		table->fork[i].fork_id = i;
 	}
-	init_philos(&table);
+	init_philos(table);
 }
+
+void	*dinner(void	*phil)
+{
+	t_philo	*philo;
+
+	philo = (t_philo *)phil;
+	wait_is_ready(&philo->table_info->mutex_ready, &philo->table_info->ready);
+	while (!simulation_finish(philo->table_info))
+	{
+		if (philo->full)
+			break ;
+		eat(philo);
+	}
+}
+void	create_thread(t_table *table)
+{
+	int	i;
+
+	i = 0;
+	while (i < table->nb_philo)
+	{
+		if (pthread_create(&table->philo->thread_id, NULL, dinner, &table->philo[i]))
+			exit(EXIT_FAILURE);
+		i++;
+	}
+}
+
+void	wait_is_ready(t_mtx *mtx, bool *ready)
+{
+	while (get_bool(mtx, ready) == false)
+		;
+}
+void	check_monitor(t_table *table)
+{
+	wait_is_ready(&table->mutex_ready, &table->ready);
+}
+
 void	start(t_table *table)
 {
+	int	i;
 
+	i = 0;
+	if (pthread_mutex_init(&table->mutex_ready, NULL) == -1)
+		exit(1);
+	pthread_mutex_lock(&table->mutex_ready);
+	create_thread(table);
+	table->start_time = now_time_ms();
+	table->ready = true;
+	pthread_mutex_unlock(&table->mutex_ready);
+	while (i < table->nb_philo)
+	{
+		pthread_join(table->philo[i].thread_id, NULL);
+		i++;
+	}
+}
+void	ft_print_eat(t_philo *philo)
+{
+	time_t	time;
+	long	i;
+
+	time = gettime(MILLISECOND) - philo->table_info->time;
+	i = get_long(&philo->mutex_meal_count, &philo->c_eat);
+	++i;
+	printf("%ld      %d is eating\n", time, philo->index);
+	set_long(&philo->mutex_meal_count, &philo->c_eat, i);
+	if (philo->table_info->extra_args
+		&& i == get_long(&philo->table_info->mutex_meal_count,
+			&philo->table_info->nb_limit_eat))
+		set_bool(&philo->mutex_meal_count, &philo->full, true);
+}
+
+void	philo_print(t_mtx *mtx, t_philo *phil, int action)
+{
+	time_t	time;
+
+	pthread_mutex_lock(mtx);
+	if (get_bool(&phil->table_info->mutex, &phil->table_info->end))
+	{
+		pthread_mutex_unlock(mtx);
+		return ;
+	}
+	time = get_time_in_ms() - phil->table_info->time;
+	if (action == TAKE_FORK)
+		printf("%ld      %d has taken a fork\n", time, phil->index);
+	else if (action == EAT)
+		ft_print_eat(phil);
+	else if (action == SLEEP)
+	{
+		time = get_time_in_ms() - phil->table_info->time;
+		printf("%ld      %d is sleeping\n", time, phil->index);
+	}
+	else if (action == THINK)
+	{
+		time = get_time_in_ms() - phil->table_info->time;
+		printf("%ld      %d is thinking\n", time, phil->index);
+	}
+	pthread_mutex_unlock(mtx);
 }
 
 int	main(int ac, char **av)
@@ -156,5 +334,6 @@ int	main(int ac, char **av)
 	parse_input(&table, av);
 	data_init(&table, av);
 	start(&table);
+	return (0);
 }
 

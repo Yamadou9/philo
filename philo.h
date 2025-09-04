@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/31 16:30:30 by ydembele          #+#    #+#             */
-/*   Updated: 2025/08/31 17:57:19 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/04 16:43:28 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,10 +22,23 @@
 # include <stdbool.h>
 # include "limits.h"
 
+
+# define SECOND 1
+# define MILLISECOND 2
+# define MICROSECOND 3
+
+
+# define TAKE_FORK 1
+# define EAT 2
+# define SLEEP 3
+# define THINK 4
+
 typedef pthread_mutex_t	t_mtx;
+typedef struct t_table t_table;
+
 
 int		checks(char **data);
-long	ft_atoi(const char *nptr);
+
 void	*my_malloc(size_t size);
 
 typedef struct s_fork
@@ -36,18 +49,21 @@ typedef struct s_fork
 
 typedef struct t_philo
 {
-	int			index;
-	long		c_eat;
-	time_t		no_eat;
-	bool		mort;
-	t_fork		*f_fork;
-	t_fork		*s_fork;
-	t_philo		*next;
-	t_table		*table_info;
-	pthread_t	thread_id;
+	int				index;
+	long			c_eat;
+	time_t			no_eat;
+	bool			mort;
+	bool			full;
+	t_fork			*f_fork;
+	t_fork			*s_fork;
+	struct t_philo	*next;
+	t_table			*table_info;
+	t_mtx			mutex_meal_time;
+	t_mtx			mutex_meal_count;
+	pthread_t		thread_id;
 }	t_philo;
 
-typedef struct t_tble
+typedef struct t_table
 {
 	time_t	time_eat;
 	time_t	time_sleep;
@@ -55,10 +71,19 @@ typedef struct t_tble
 	time_t	time_think;
 	int		nb_philo;
 	long	nb_limit_eat;
+	long	start_time;
+	long	passed_time;
+	t_mtx	mutex_ready;
+	t_mtx	mutex;
+	t_mtx	write_lock;
 	t_philo	*philo;
 	time_t	time;
 	bool	end;
+	bool	ready;
 	t_fork	*fork;
 }	t_table;
+
+bool	simulation_finish(t_table *table);
+void	wait_is_ready(t_mtx *mtx, bool *ready);
 
 #endif
