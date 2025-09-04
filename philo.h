@@ -20,26 +20,45 @@
 # include "unistd.h"
 # include <string.h>
 # include <stdbool.h>
+# include "limits.h"
+
+typedef pthread_mutex_t	t_mtx;
+
+int		checks(char **data);
+long	ft_atoi(const char *nptr);
+void	*my_malloc(size_t size);
+
+typedef struct s_fork
+{
+	t_mtx	fork;
+	int		fork_id;
+}	t_fork;
 
 typedef struct t_philo
 {
-	int		index;
-	long	c_eat;
-	time_t	no_eat;
-	bool	mort;
-	t_philo	*next;
-	t_table	*table_info;
+	int			index;
+	long		c_eat;
+	time_t		no_eat;
+	bool		mort;
+	t_fork		*f_fork;
+	t_fork		*s_fork;
+	t_philo		*next;
+	t_table		*table_info;
+	pthread_t	thread_id;
 }	t_philo;
 
-typedef struct t_table
+typedef struct t_tble
 {
 	time_t	time_eat;
 	time_t	time_sleep;
 	time_t	time_die;
 	time_t	time_think;
 	int		nb_philo;
+	long	nb_limit_eat;
 	t_philo	*philo;
 	time_t	time;
+	bool	end;
+	t_fork	*fork;
 }	t_table;
 
 #endif

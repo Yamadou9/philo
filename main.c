@@ -25,6 +25,7 @@ long long	passed_ms(long long start)
 {
 	return (now_time_ms() - start);
 }
+
 void	*print_hello(void	*arg)
 {
 	int	i;
@@ -85,19 +86,75 @@ t_philo	*ft_lstnew_philo(int i)
 	return (s);
 }
 
-void	init_philos(int ac, char **av, t_philo *philo)
+void	parse_input(t_table *table, char **av)
+{
+	if (!checks(av))
+		exit(1);
+	table->time_eat = ft_atoi(av[3]) * 1e3;
+	table->time_sleep = ft_atoi(av[4]) * 1e3;
+	table->time_die = ft_atoi(av[2]) * 1e3;
+	table->nb_philo = ft_atoi(av[1]);
+}
+
+void	assign_fork(t_philo *philo, t_fork *fork, int i)
+{
+	int	nb_philo;
+
+	nb_philo = philo->table_info->nb_philo;
+	if (philo->index % 2)
+	{
+		philo->f_fork = &fork[i];
+		philo->s_fork = &fork[(i + 1) % nb_philo];
+	}
+	else
+	{
+		philo->s_fork = &fork[i];
+		philo->f_fork = &fork[(i + 1) % nb_philo];
+	}
+}
+
+void	init_philos(t_table *table)
+{
+	int		i;
+	t_philo	*philo;
+
+	i = 0;
+	while (i < table->nb_philo)
+	{
+		philo = table->philo + i;
+		philo->index = i + 1;
+		philo->c_eat = 0;
+		philo->table_info = table;
+		assign_fork(philo, table->fork, i);
+	}
+}
+
+void	data_init(t_table *table, char **av)
 {
 	int	i;
 
 	i = 0;
-	while (i < ac)
+	table->end = false;
+	table->philo = my_malloc(sizeof(t_philo) * table->nb_philo);
+	table->fork = my_malloc(sizeof(t_fork) * table->nb_philo);
+	while (i < table->nb_philo)
 	{
-		ft_lstnew(i);
+		pthread_mutex_init(&table->fork[i].fork, NULL);
+		table->fork[i].fork_id = i;
 	}
+	init_philos(&table);
 }
+void	start(t_table *table)
+{
 
+}
 
 int	main(int ac, char **av)
 {
-	
+	t_table	table;
+
+	parse_input(&table, av);
+	data_init(&table, av);
+	start(&table);
 }
+
