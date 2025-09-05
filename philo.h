@@ -60,6 +60,7 @@ typedef struct t_philo
 	t_table			*table_info;
 	t_mtx			mutex_meal_time;
 	t_mtx			mutex_meal_count;
+	t_mtx			philo_mutex;
 	pthread_t		thread_id;
 }	t_philo;
 
@@ -85,5 +86,6 @@ typedef struct t_table
 
 bool	simulation_finish(t_table *table);
 void	wait_is_ready(t_mtx *mtx, bool *ready);
+long	ft_atoi(const char *nptr);
 
 #endif

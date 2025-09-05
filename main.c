@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "philo.h"
-#include "../ft_libft/libft.h"
+
 
 long	now_time_ms(void)
 {
@@ -174,6 +174,10 @@ void	parse_input(t_table *table, char **av)
 	table->time_sleep = ft_atoi(av[4]) * 1e3;
 	table->time_die = ft_atoi(av[2]) * 1e3;
 	table->nb_philo = ft_atoi(av[1]);
+	if (av[5] != NULL)
+		table->nb_limit_eat = ft_atoi(av[5]);
+	else
+		table->nb_limit_eat = -1;
 }
 
 void	assign_fork(t_philo *philo, t_fork *fork, int i)
@@ -206,7 +210,11 @@ void	init_philos(t_table *table)
 		philo->c_eat = 0;
 		philo->table_info = table;
 		philo->full = false;
+		pthread_mutex_init(&philo->philo_mutex, NULL);
+		pthread_mutex_init(&philo->mutex_meal_count, NULL);
+		pthread_mutex_init(&philo->mutex_meal_time, NULL);
 		assign_fork(philo, table->fork, i);
+		i++;
 	}
 }
 
@@ -225,11 +233,55 @@ void	data_init(t_table *table, char **av)
 	{
 		pthread_mutex_init(&table->fork[i].fork, NULL);
 		table->fork[i].fork_id = i;
+		i++;
 	}
 	init_philos(table);
 }
 
-void	*dinner(void	*phil)
+void	philo_print(t_mtx *mtx, t_philo *phil, int action)
+{
+	time_t	time;
+
+	if (phil->full)
+		return ;
+	if (simulation_finish(phil->table_info))
+		return ;
+	pthread_mutex_lock(mtx);
+	if (get_bool(&phil->table_info->mutex, &phil->table_info->end))
+	{
+		pthread_mutex_unlock(mtx);
+		return ;
+	}
+	time = now_time_ms() - phil->table_info->time;
+	if (action == TAKE_FORK)
+		printf("%ld      %d has taken a fork\n", time, phil->index);
+	else if (action == EAT)
+		printf("%ld      %d is eating\n", time, phil->index);
+	else if (action == SLEEP)
+		printf("%ld      %d is sleeping\n", time, phil->index);
+	else if (action == THINK)
+		printf("%ld      %d is thinking\n", time, phil->index);
+	pthread_mutex_unlock(mtx);
+}
+
+void	eat(t_philo *philo)
+{
+	pthread_mutex_lock(&philo->f_fork->fork);
+	philo_print(&philo->table_info->write_lock, philo, TAKE_FORK);
+	pthread_mutex_lock(&philo->s_fork->fork);
+	philo_print(&philo->table_info->write_lock, philo, TAKE_FORK);
+	set_long(&philo->philo_mutex, &philo->no_eat, gettime(MILLISECOND));
+	philo->c_eat++;
+	philo_print(&philo->table_info->write_lock, philo, EAT);
+	precise_usleep(philo->table_info->time_eat, philo->table_info);
+	if (philo->table_info->nb_limit_eat > 0
+		&& philo->c_eat == philo->table_info->nb_limit_eat)
+		set_bool(&philo->philo_mutex, &philo->full, true);
+	pthread_mutex_unlock(&philo->f_fork->fork);
+	pthread_mutex_unlock(&philo->s_fork->fork);
+}
+
+void	*dinner(void *phil)
 {
 	t_philo	*philo;
 
@@ -240,6 +292,8 @@ void	*dinner(void	*phil)
 		if (philo->full)
 			break ;
 		eat(philo);
+		philo_print(&philo->table_info->write_lock, philo, SLEEP);
+		precise_usleep(philo->table_info->time_sleep, philo->table_info);
 	}
 }
 void	create_thread(t_table *table)
@@ -274,7 +328,7 @@ void	start(t_table *table)
 		exit(1);
 	pthread_mutex_lock(&table->mutex_ready);
 	create_thread(table);
-	table->start_time = now_time_ms();
+	table->time = now_time_ms();
 	table->ready = true;
 	pthread_mutex_unlock(&table->mutex_ready);
 	while (i < table->nb_philo)
@@ -283,49 +337,23 @@ void	start(t_table *table)
 		i++;
 	}
 }
-void	ft_print_eat(t_philo *philo)
-{
-	time_t	time;
-	long	i;
+// void	ft_print_eat(t_philo *philo)
+// {
+// 	time_t	time;
+// 	long	i;
 
-	time = gettime(MILLISECOND) - philo->table_info->time;
-	i = get_long(&philo->mutex_meal_count, &philo->c_eat);
-	++i;
-	printf("%ld      %d is eating\n", time, philo->index);
-	set_long(&philo->mutex_meal_count, &philo->c_eat, i);
-	if (philo->table_info->extra_args
-		&& i == get_long(&philo->table_info->mutex_meal_count,
-			&philo->table_info->nb_limit_eat))
-		set_bool(&philo->mutex_meal_count, &philo->full, true);
-}
+// 	time = gettime(MILLISECOND) - philo->table_info->time;
+// 	i = get_long(&philo->mutex_meal_count, &philo->c_eat);
+// 	++i;
+// 	printf("%ld      %d is eating\n", time, philo->index);
+// 	set_long(&philo->mutex_meal_count, &philo->c_eat, i);
+// 	if (philo->table_info->extra_args
+// 		&& i == get_long(&philo->table_info->mutex_meal_count,
+// 			&philo->table_info->nb_limit_eat))
+// 		set_bool(&philo->mutex_meal_count, &philo->full, true);
+// }
 
-void	philo_print(t_mtx *mtx, t_philo *phil, int action)
-{
-	time_t	time;
 
-	pthread_mutex_lock(mtx);
-	if (get_bool(&phil->table_info->mutex, &phil->table_info->end))
-	{
-		pthread_mutex_unlock(mtx);
-		return ;
-	}
-	time = get_time_in_ms() - phil->table_info->time;
-	if (action == TAKE_FORK)
-		printf("%ld      %d has taken a fork\n", time, phil->index);
-	else if (action == EAT)
-		ft_print_eat(phil);
-	else if (action == SLEEP)
-	{
-		time = get_time_in_ms() - phil->table_info->time;
-		printf("%ld      %d is sleeping\n", time, phil->index);
-	}
-	else if (action == THINK)
-	{
-		time = get_time_in_ms() - phil->table_info->time;
-		printf("%ld      %d is thinking\n", time, phil->index);
-	}
-	pthread_mutex_unlock(mtx);
-}
 
 int	main(int ac, char **av)
 {
