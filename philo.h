@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/31 16:30:30 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/04 16:43:28 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/06 15:42:47 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@
 # define EAT 2
 # define SLEEP 3
 # define THINK 4
+# define DEAD 5
 
 typedef pthread_mutex_t	t_mtx;
 typedef struct t_table t_table;
@@ -66,22 +67,24 @@ typedef struct t_philo
 
 typedef struct t_table
 {
-	time_t	time_eat;
-	time_t	time_sleep;
-	time_t	time_die;
-	time_t	time_think;
-	int		nb_philo;
-	long	nb_limit_eat;
-	long	start_time;
-	long	passed_time;
-	t_mtx	mutex_ready;
-	t_mtx	mutex;
-	t_mtx	write_lock;
-	t_philo	*philo;
-	time_t	time;
-	bool	end;
-	bool	ready;
-	t_fork	*fork;
+	time_t		time_eat;
+	time_t		time_sleep;
+	time_t		time_die;
+	time_t		time_think;
+	int			nb_philo;
+	long		nb_limit_eat;
+	long		start_time;
+	long		passed_time;
+	long		threads_runnig;
+	t_mtx		mutex_ready;
+	t_mtx		mutex;
+	t_mtx		write_lock;
+	t_philo		*philo;
+	time_t		time;
+	bool		end;
+	bool		ready;
+	pthread_t	monitor;
+	t_fork		*fork;
 }	t_table;
 
 bool	simulation_finish(t_table *table);
