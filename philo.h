@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/31 16:30:30 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/06 15:42:47 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/06 17:25:11 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,5 +90,19 @@ typedef struct t_table
 bool	simulation_finish(t_table *table);
 void	wait_is_ready(t_mtx *mtx, bool *ready);
 long	ft_atoi(const char *nptr);
+bool	get_bool(t_mtx *mtx, bool *value);
+void	set_bool(t_mtx *mtx, bool *dest, bool value);
+long	get_long(t_mtx *mtx, long *value);
+void	set_long(t_mtx *mtx, long *dest, long value);
+void	incremente_long(t_mtx *mtx, long *nb);
+bool	died(t_philo *philo);
+bool	all_full(t_table *table);
+void	*check_monitor(void *tble);
+void	init_philos(t_table *table);
+void	create_thread(t_table *table);
+void	*dinner(void *phil);
+void	assign_fork(t_philo *philo, t_fork *fork, int i);
+void	wait_is_ready(t_mtx *mtx, bool *ready);
+bool	threads_run(t_mtx *mtx, long *nb_run, long nb);
 
 #endif

@@ -1,3 +1,14 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parsing.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/09/06 17:08:45 by ydembele          #+#    #+#             */
+/*   Updated: 2025/09/06 17:26:35 by ydembele         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "philo.h"
 
@@ -39,3 +50,7 @@ void	*my_malloc(size_t size)
 	return (res);
 }
 
+bool	simulation_finish(t_table *table)
+{
+	return (get_bool(&table->mutex, &table->end));
+}

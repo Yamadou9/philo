@@ -6,12 +6,11 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/28 15:56:37 by ydembele          #+#    #+#             */
-/*   Updated: 2025/05/12 15:17:13 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/06 17:27:20 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
-
 
 long	ft_atoi(const char *nptr)
 {
