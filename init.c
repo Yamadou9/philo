@@ -6,11 +6,27 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 17:17:11 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/06 17:27:53 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/08 16:42:09 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
+
+// void	null_fonction(t_table *table)
+// {
+// 	int	i;
+
+// 	i = 0;
+// 	table->mutex = NULL;
+// 	table->mutex_ready);
+// 	table->write_lock);
+// 	while (i < table->nb_philo)
+// 	{
+// 		table->philo[i].philo_mutex);
+// 		table->fork[i].fork);
+// 		i++;
+// 	}
+// }
 
 void	init_philos(t_table *table)
 {
@@ -25,9 +41,9 @@ void	init_philos(t_table *table)
 		philo->c_eat = 0;
 		philo->table_info = table;
 		philo->full = false;
+		philo->phil_bool = false;
 		pthread_mutex_init(&philo->philo_mutex, NULL);
-		pthread_mutex_init(&philo->mutex_meal_count, NULL);
-		pthread_mutex_init(&philo->mutex_meal_time, NULL);
+		philo->phil_bool = true;
 		assign_fork(philo, table->fork, i);
 		i++;
 	}
@@ -40,14 +56,25 @@ void	data_init(t_table *table)
 	i = 0;
 	table->end = false;
 	table->ready = false;
-	table->philo = my_malloc(sizeof(t_philo) * table->nb_philo);
+	table->philo = malloc(sizeof(t_philo) * table->nb_philo);
+	if (!table->philo)
+		exit(EXIT_FAILURE);
 	table->fork = my_malloc(sizeof(t_fork) * table->nb_philo);
+	if (!table->fork)
+	{
+		free(table->philo);
+		exit(EXIT_FAILURE);
+	}
 	table->threads_runnig = 0;
-	pthread_mutex_init(&table->mutex, NULL);
-	pthread_mutex_init(&table->write_lock, NULL);
+	table->mtx_bool = false;
+	table->write_bool = false;
+	while (i++ < table->nb_philo)
+		table->fork[i].fork_init = false;
+	my_mutex_init(&table->mutex, &table);
+	my_mutex_init(&table->write_lock, &table);
 	while (i < table->nb_philo)
 	{
-		pthread_mutex_init(&table->fork[i].fork, NULL);
+		my_mutex_init(&table->fork[i].fork, &table);
 		table->fork[i].fork_id = i;
 		i++;
 	}
@@ -61,9 +88,7 @@ void	create_thread(t_table *table)
 	i = 0;
 	while (i < table->nb_philo)
 	{
-		if (pthread_create(&table->philo->thread_id, NULL,
-				dinner, &table->philo[i]))
-			exit(EXIT_FAILURE);
+		my_pthread_create(&table->philo[i].thread_id, dinner, &table->philo[i]);
 		i++;
 	}
 }

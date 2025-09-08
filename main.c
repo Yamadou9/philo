@@ -6,11 +6,29 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/31 15:08:00 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/06 17:27:05 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/08 16:49:34 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
+
+void	free_all(t_table *table)
+{
+	int	i;
+
+	i = 0;
+	my_mutex_destroy(&table->mutex, table->mtx_bool);
+	my_mutex_destroy(&table->mutex_ready, table->mtx_rdy_bool);
+	my_mutex_destroy(&table->write_lock, table->write_bool);
+	while (i < table->nb_philo)
+	{
+		my_mutex_destroy(&table->philo[i].philo_mutex, table->philo[i].phil_bool);
+		my_mutex_destroy(&table->fork[i].fork, table->fork[i].fork_init);
+		i++;
+	}
+	free(table->philo);
+	free(table->fork);
+}
 
 void	philo_print(t_mtx *mtx, t_philo *phil, int action)
 {
@@ -20,10 +38,10 @@ void	philo_print(t_mtx *mtx, t_philo *phil, int action)
 		return ;
 	if (simulation_finish(phil->table_info))
 		return ;
-	pthread_mutex_lock(mtx);
+	my_mutex_lock(mtx, &phil->table_info);
 	if (get_bool(&phil->table_info->mutex, &phil->table_info->end))
 	{
-		pthread_mutex_unlock(mtx);
+		my_mutex_unlock(mtx, &phil->table_info);
 		return ;
 	}
 	time = now_time_ms() - phil->table_info->time;
@@ -37,14 +55,14 @@ void	philo_print(t_mtx *mtx, t_philo *phil, int action)
 		printf("%ld      %d is thinking\n", time, phil->index);
 	else if (action == DEAD)
 		printf("%ld      %d is dead\n", time, phil->index);
-	pthread_mutex_unlock(mtx);
+	my_mutex_unlock(mtx, &phil->table_info);
 }
 
 void	eat(t_philo *philo)
 {
-	pthread_mutex_lock(&philo->f_fork->fork);
+	my_mutex_lock(&philo->f_fork->fork, &philo->table_info);
 	philo_print(&philo->table_info->write_lock, philo, TAKE_FORK);
-	pthread_mutex_lock(&philo->s_fork->fork);
+	my_mutex_lock(&philo->s_fork->fork, &philo->table_info);
 	philo_print(&philo->table_info->write_lock, philo, TAKE_FORK);
 	set_long(&philo->philo_mutex, &philo->no_eat, gettime(MILLISECOND));
 	philo->c_eat++;
@@ -53,8 +71,8 @@ void	eat(t_philo *philo)
 	if (philo->table_info->nb_limit_eat > 0
 		&& philo->c_eat == philo->table_info->nb_limit_eat)
 		set_bool(&philo->philo_mutex, &philo->full, true);
-	pthread_mutex_unlock(&philo->f_fork->fork);
-	pthread_mutex_unlock(&philo->s_fork->fork);
+	my_mutex_unlock(&philo->f_fork->fork, &philo->table_info);
+	my_mutex_unlock(&philo->s_fork->fork, &philo->table_info);
 }
 
 void	*dinner(void *phil)
@@ -86,18 +104,18 @@ void	start(t_table *table)
 		return ;
 	if (pthread_mutex_init(&table->mutex_ready, NULL) == -1)
 		exit(1);
-	pthread_mutex_lock(&table->mutex_ready);
+	my_mutex_lock(&table->mutex_ready, &table);
 	create_thread(table);
-	pthread_create(&table->monitor, NULL, check_monitor, table);
+	my_pthread_create(&table->monitor, check_monitor, table);
 	table->time = now_time_ms();
 	table->ready = true;
-	pthread_mutex_unlock(&table->mutex_ready);
+	my_mutex_unlock(&table->mutex_ready, &table);
 	while (i < table->nb_philo)
 	{
-		pthread_join(table->philo[i].thread_id, NULL);
+		my_pthread_join(table->philo[i].thread_id, NULL);
 		i++;
 	}
-	pthread_join(table->monitor, NULL);
+	my_pthread_join(table->monitor, NULL);
 }
 
 int	main(int ac, char **av)
@@ -109,5 +127,6 @@ int	main(int ac, char **av)
 	parse_input(&table, av, ac);
 	data_init(&table);
 	start(&table);
+	free_all(&table);
 	return (0);
 }
