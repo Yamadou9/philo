@@ -104,10 +104,10 @@ int	main(int ac, char **av)
 {
 	t_table	table;
 
-	if (ac != 5 || ac != 6)
+	if (ac != 5 && ac != 6)
 		return (0);
 	parse_input(&table, av, ac);
-	data_init(&table, av);
+	data_init(&table);
 	start(&table);
 	return (0);
 }

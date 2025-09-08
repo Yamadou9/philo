@@ -33,7 +33,7 @@ void	init_philos(t_table *table)
 	}
 }
 
-void	data_init(t_table *table, char **av)
+void	data_init(t_table *table)
 {
 	int	i;
 

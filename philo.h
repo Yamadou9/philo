@@ -104,5 +104,13 @@ void	*dinner(void *phil);
 void	assign_fork(t_philo *philo, t_fork *fork, int i);
 void	wait_is_ready(t_mtx *mtx, bool *ready);
 bool	threads_run(t_mtx *mtx, long *nb_run, long nb);
+long	now_time_ms(void);
+long	passed_ms(long start);
+long	gettime(int code);
+void	parse_input(t_table *table, char **av, int ac);
+void	data_init(t_table *table);
+void	precise_usleep(long usec, t_table *table);
+void	philo_print(t_mtx *mtx, t_philo *phil, int action);
+int		is_int(char *c);
 
 #endif
