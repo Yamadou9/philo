@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/31 16:30:30 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/08 16:54:57 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/08 18:20:47 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,11 +93,11 @@ typedef struct t_table
 bool	simulation_finish(t_table *table);
 void	wait_is_ready(t_mtx *mtx, bool *ready);
 long	ft_atoi(const char *nptr);
-bool	get_bool(t_mtx *mtx, bool *value, t_table *table);
-void	set_bool(t_mtx *mtx, bool *dest, bool value, t_table *table);
-long	get_long(t_mtx *mtx, long *value, t_table *table);
-void	set_long(t_mtx *mtx, long *dest, long value, t_table *table);
-void	incremente_long(t_mtx *mtx, long *nb, t_table *table);
+bool	get_bool(t_mtx *mtx, bool *value);
+void	set_bool(t_mtx *mtx, bool *dest, bool value);
+long	get_long(t_mtx *mtx, long *value);
+void	set_long(t_mtx *mtx, long *dest, long value);
+void	incremente_long(t_mtx *mtx, long *nb);
 bool	died(t_philo *philo);
 bool	all_full(t_table *table);
 void	*check_monitor(void *tble);
@@ -116,9 +116,9 @@ void	precise_usleep(long usec, t_table *table);
 void	philo_print(t_mtx *mtx, t_philo *phil, int action);
 int		is_int(char *c);
 void	my_pthread_create(pthread_t *t, void *(*f)(void *), void *arg, t_table *table);
-void	my_mutex_lock(t_mtx *mtx, t_table *table);
-void	my_mutex_unlock(t_mtx *mtx, t_table *table);
-void	my_mutex_destroy(t_mtx *m, bool b, t_table *table);
+void	my_mutex_lock(t_mtx *mtx);
+void	my_mutex_unlock(t_mtx *mtx);
+void	my_mutex_destroy(t_mtx *m, bool b);
 void	my_pthread_join(pthread_t t, void **null, t_table *table);
 void	my_mutex_init(t_mtx *mtx, t_table *table);
 void	free_all(t_table *table);

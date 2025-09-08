@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 15:02:43 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/08 16:54:04 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/08 18:20:30 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ void	my_mutex_init(t_mtx *mtx, t_table *table)
 	}
 }
 
-void	my_mutex_lock(t_mtx *mtx, t_table *table)
+void	my_mutex_lock(t_mtx *mtx)
 {
 	int	err;
 
@@ -43,13 +43,12 @@ void	my_mutex_lock(t_mtx *mtx, t_table *table)
 			put_error("Error: Invalid mutex\n");
 		else
 			put_error("Error: pthread_mutex_lock failed\n");
-		free_all(table);
 		exit(EXIT_FAILURE);
 	}
 }
 
 
-void	my_mutex_unlock(t_mtx *m, t_table *table)
+void	my_mutex_unlock(t_mtx *m)
 {
 	int	rc;
 
@@ -62,12 +61,11 @@ void	my_mutex_unlock(t_mtx *m, t_table *table)
 			put_error("Error: Invalid mutex\n");
 		else
 			put_error("Error: pthread_mutex_unlock failed\n");
-		free_all(table);
 		exit(EXIT_FAILURE);
 	}
 }
 
-void	my_mutex_destroy(t_mtx *m, bool b, t_table *table)
+void	my_mutex_destroy(t_mtx *m, bool b)
 {
 	int	rc;
 
@@ -77,7 +75,6 @@ void	my_mutex_destroy(t_mtx *m, bool b, t_table *table)
 	if (rc != 0)
 	{
 		put_error("Error: pthread_mutex_destroy failed\n");
-		free_all(table);
 		exit(EXIT_FAILURE);
 	}
 }

@@ -6,27 +6,11 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 17:17:11 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/08 16:42:09 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/08 18:33:05 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
-
-// void	null_fonction(t_table *table)
-// {
-// 	int	i;
-
-// 	i = 0;
-// 	table->mutex = NULL;
-// 	table->mutex_ready);
-// 	table->write_lock);
-// 	while (i < table->nb_philo)
-// 	{
-// 		table->philo[i].philo_mutex);
-// 		table->fork[i].fork);
-// 		i++;
-// 	}
-// }
 
 void	init_philos(t_table *table)
 {
@@ -42,7 +26,7 @@ void	init_philos(t_table *table)
 		philo->table_info = table;
 		philo->full = false;
 		philo->phil_bool = false;
-		pthread_mutex_init(&philo->philo_mutex, NULL);
+		my_mutex_init(&philo->philo_mutex, table);
 		philo->phil_bool = true;
 		assign_fork(philo, table->fork, i);
 		i++;
@@ -68,13 +52,15 @@ void	data_init(t_table *table)
 	table->threads_runnig = 0;
 	table->mtx_bool = false;
 	table->write_bool = false;
-	while (i++ < table->nb_philo)
-		table->fork[i].fork_init = false;
-	my_mutex_init(&table->mutex, &table);
-	my_mutex_init(&table->write_lock, &table);
+	table->mtx_rdy_bool = false;
+	while (i < table->nb_philo)
+		table->fork[i++].fork_init = false;
+	my_mutex_init(&table->mutex, table);
+	my_mutex_init(&table->write_lock, table);
+	i = 0;
 	while (i < table->nb_philo)
 	{
-		my_mutex_init(&table->fork[i].fork, &table);
+		my_mutex_init(&table->fork[i].fork, table);
 		table->fork[i].fork_id = i;
 		i++;
 	}
@@ -88,7 +74,8 @@ void	create_thread(t_table *table)
 	i = 0;
 	while (i < table->nb_philo)
 	{
-		my_pthread_create(&table->philo[i].thread_id, dinner, &table->philo[i]);
+		my_pthread_create(&table->philo[i].thread_id, dinner,
+			&table->philo[i], table);
 		i++;
 	}
 }

@@ -6,11 +6,23 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/31 15:08:00 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/08 16:49:34 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/08 18:48:47 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
+
+void	thinking(t_philo *philo)
+{
+	time_t	think;
+	
+	if (philo->table_info->nb_limit_eat %  2 == 0)
+		return ;
+	think = philo->table_info->time_eat * 2 - philo->table_info->time_sleep;
+	if (think < 0)
+	 	think = 0;
+	precise_usleep(think * 0.42, philo->table_info);
+}
 
 void	free_all(t_table *table)
 {
@@ -38,10 +50,10 @@ void	philo_print(t_mtx *mtx, t_philo *phil, int action)
 		return ;
 	if (simulation_finish(phil->table_info))
 		return ;
-	my_mutex_lock(mtx, &phil->table_info);
+	my_mutex_lock(mtx);
 	if (get_bool(&phil->table_info->mutex, &phil->table_info->end))
 	{
-		my_mutex_unlock(mtx, &phil->table_info);
+		my_mutex_unlock(mtx);
 		return ;
 	}
 	time = now_time_ms() - phil->table_info->time;
@@ -54,15 +66,15 @@ void	philo_print(t_mtx *mtx, t_philo *phil, int action)
 	else if (action == THINK)
 		printf("%ld      %d is thinking\n", time, phil->index);
 	else if (action == DEAD)
-		printf("%ld      %d is dead\n", time, phil->index);
-	my_mutex_unlock(mtx, &phil->table_info);
+		printf("%ld      %d died\n", time, phil->index);
+	my_mutex_unlock(mtx);
 }
 
 void	eat(t_philo *philo)
 {
-	my_mutex_lock(&philo->f_fork->fork, &philo->table_info);
+	my_mutex_lock(&philo->f_fork->fork);
 	philo_print(&philo->table_info->write_lock, philo, TAKE_FORK);
-	my_mutex_lock(&philo->s_fork->fork, &philo->table_info);
+	my_mutex_lock(&philo->s_fork->fork);
 	philo_print(&philo->table_info->write_lock, philo, TAKE_FORK);
 	set_long(&philo->philo_mutex, &philo->no_eat, gettime(MILLISECOND));
 	philo->c_eat++;
@@ -71,8 +83,22 @@ void	eat(t_philo *philo)
 	if (philo->table_info->nb_limit_eat > 0
 		&& philo->c_eat == philo->table_info->nb_limit_eat)
 		set_bool(&philo->philo_mutex, &philo->full, true);
-	my_mutex_unlock(&philo->f_fork->fork, &philo->table_info);
-	my_mutex_unlock(&philo->s_fork->fork, &philo->table_info);
+	my_mutex_unlock(&philo->f_fork->fork);
+	my_mutex_unlock(&philo->s_fork->fork);
+}
+
+void	desincronyse(t_philo *philo)
+{
+	if (philo->table_info->nb_philo % 2 == 0)
+	{
+		if (philo->index % 2 == 0)
+			precise_usleep(3e4, philo->table_info);
+	}
+	else
+	{
+		if (philo->index % 2)
+			thinking(philo);
+	}
 }
 
 void	*dinner(void *phil)
@@ -84,6 +110,7 @@ void	*dinner(void *phil)
 	set_long(&philo->philo_mutex, &philo->no_eat, gettime(MILLISECOND));
 	incremente_long(&philo->table_info->mutex,
 		&philo->table_info->threads_runnig);
+	desincronyse(philo);
 	while (!simulation_finish(philo->table_info))
 	{
 		if (philo->full)
@@ -91,6 +118,7 @@ void	*dinner(void *phil)
 		eat(philo);
 		philo_print(&philo->table_info->write_lock, philo, SLEEP);
 		precise_usleep(philo->table_info->time_sleep, philo->table_info);
+		thinking(philo);
 	}
 	return (NULL);
 }
@@ -102,20 +130,19 @@ void	start(t_table *table)
 	i = 0;
 	if (table->nb_limit_eat == 0)
 		return ;
-	if (pthread_mutex_init(&table->mutex_ready, NULL) == -1)
-		exit(1);
-	my_mutex_lock(&table->mutex_ready, &table);
+	my_mutex_init(&table->mutex_ready, table);
+	my_mutex_lock(&table->mutex_ready);
 	create_thread(table);
-	my_pthread_create(&table->monitor, check_monitor, table);
+	my_pthread_create(&table->monitor, check_monitor, table, table);
 	table->time = now_time_ms();
 	table->ready = true;
-	my_mutex_unlock(&table->mutex_ready, &table);
+	my_mutex_unlock(&table->mutex_ready);
 	while (i < table->nb_philo)
 	{
-		my_pthread_join(table->philo[i].thread_id, NULL);
+		my_pthread_join(table->philo[i].thread_id, NULL, table);
 		i++;
 	}
-	my_pthread_join(table->monitor, NULL);
+	my_pthread_join(table->monitor, NULL, table);
 }
 
 int	main(int ac, char **av)

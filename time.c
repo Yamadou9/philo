@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 17:21:26 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/06 17:27:36 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/08 18:38:30 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ void	precise_usleep(long usec, t_table *table)
 		elapsed = gettime(MICROSECOND) - start;
 		rem = usec - elapsed;
 		if (rem > 1e3)
-			usleep(usec / 2);
+			usleep(rem / 2);
 		else
 		{
 			while (gettime(MICROSECOND) - start < usec)

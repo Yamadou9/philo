@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 17:14:56 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/08 16:44:42 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/08 18:13:23 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ bool	threads_run(t_mtx *mtx, long *nb_run, long nb)
 	bool	ret;
 
 	ret = false;
-	my_mutex_lock(mtx, &table);
+	my_mutex_lock(mtx);
 	if (*nb_run == nb)
 		ret = true;
 	my_mutex_unlock(mtx);
