@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 17:17:11 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/08 18:33:05 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/11 18:33:36 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,9 +74,25 @@ void	create_thread(t_table *table)
 	i = 0;
 	while (i < table->nb_philo)
 	{
-		my_pthread_create(&table->philo[i].thread_id, dinner,
-			&table->philo[i], table);
+		if (my_pthread_create(&table->philo[i].thread_id, dinner,
+			&table->philo[i], table))
+		{
+
+			while (--i >= 0)
+				my_pthread_join(table->philo[i--].thread_id, NULL, table);
+			my_mutex_unlock(&table->mutex_ready);
+			free_all(table);
+			exit(EXIT_FAILURE);
+		}
 		i++;
+	}
+	if (my_pthread_create(&table->monitor, check_monitor, table, table))
+	{
+		while (--i >= 0)
+			my_pthread_join(table->philo[i--].thread_id, NULL, table);
+		my_mutex_unlock(&table->mutex_ready);
+		free_all(table);
+		exit(EXIT_FAILURE);
 	}
 }
 

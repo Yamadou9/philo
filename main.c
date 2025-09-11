@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/31 15:08:00 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/08 18:48:47 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/11 18:49:18 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,11 @@
 void	thinking(t_philo *philo)
 {
 	time_t	think;
-	
-	if (philo->table_info->nb_limit_eat %  2 == 0)
-		return ;
+
 	think = philo->table_info->time_eat * 2 - philo->table_info->time_sleep;
 	if (think < 0)
-	 	think = 0;
+		think = 0;
+	philo_print(&philo->table_info->write_lock, philo, THINK);
 	precise_usleep(think * 0.42, philo->table_info);
 }
 
@@ -89,6 +88,8 @@ void	eat(t_philo *philo)
 
 void	desincronyse(t_philo *philo)
 {
+	time_t	think;
+
 	if (philo->table_info->nb_philo % 2 == 0)
 	{
 		if (philo->index % 2 == 0)
@@ -131,9 +132,9 @@ void	start(t_table *table)
 	if (table->nb_limit_eat == 0)
 		return ;
 	my_mutex_init(&table->mutex_ready, table);
+	table->mtx_rdy_bool = true;
 	my_mutex_lock(&table->mutex_ready);
 	create_thread(table);
-	my_pthread_create(&table->monitor, check_monitor, table, table);
 	table->time = now_time_ms();
 	table->ready = true;
 	my_mutex_unlock(&table->mutex_ready);

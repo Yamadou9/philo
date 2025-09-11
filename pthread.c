@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 15:02:43 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/08 18:20:30 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/11 18:28:22 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ void	my_mutex_destroy(t_mtx *m, bool b)
 	}
 }
 
-void	my_pthread_create(pthread_t *t, void *(*f)(void *), void *arg, t_table *table)
+int	my_pthread_create(pthread_t *t, void *(*f)(void *), void *arg, t_table *table)
 {
 	int	rc;
 
@@ -92,9 +92,9 @@ void	my_pthread_create(pthread_t *t, void *(*f)(void *), void *arg, t_table *tab
 			put_error("Error: Invalid thread attributes\n");
 		else
 			put_error("Error: pthread_create failed\n");
-		free_all(table);
-		exit(EXIT_FAILURE);
+		return (1);
 	}
+	return (0);
 }
 
 void	my_pthread_join(pthread_t t, void **null, t_table *table)

@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/31 16:30:30 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/08 18:20:47 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/11 18:23:13 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,7 @@ void	data_init(t_table *table);
 void	precise_usleep(long usec, t_table *table);
 void	philo_print(t_mtx *mtx, t_philo *phil, int action);
 int		is_int(char *c);
-void	my_pthread_create(pthread_t *t, void *(*f)(void *), void *arg, t_table *table);
+int		my_pthread_create(pthread_t *t, void *(*f)(void *), void *arg, t_table *table);
 void	my_mutex_lock(t_mtx *mtx);
 void	my_mutex_unlock(t_mtx *mtx);
 void	my_mutex_destroy(t_mtx *m, bool b);
