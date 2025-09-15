@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/31 16:30:30 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/15 12:37:00 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/15 12:44:21 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,21 +22,18 @@
 # include <stdbool.h>
 # include "limits.h"
 
-
 # define SECOND 1
 # define MILLISECOND 2
 # define MICROSECOND 3
-
-
 # define TAKE_FORK 1
+
 # define EAT 2
 # define SLEEP 3
 # define THINK 4
 # define DEAD 5
 
+typedef struct t_table	t_table;
 typedef pthread_mutex_t	t_mtx;
-typedef struct t_table t_table;
-
 
 int		checks(char **data);
 
