@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 17:17:11 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/15 12:28:21 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/15 12:36:13 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,8 +58,7 @@ void	data_init(t_table *table)
 	{
 		my_mutex_init(&table->fork[i].fork, table);
 		table->fork[i].fork_id = i;
-		table->fork[i].fork_init = true;
-		i++;
+		table->fork[i++].fork_init = true;
 	}
 	init_philos(table);
 }

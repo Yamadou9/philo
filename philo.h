@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/31 16:30:30 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/15 12:31:21 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/15 12:37:00 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,5 +125,6 @@ void	free_all(t_table *table);
 void	desincronyse(t_philo *philo);
 void	eat(t_philo *philo);
 void	thinking(t_philo *philo);
+void	put_error(const char *msg);
 
 #endif
