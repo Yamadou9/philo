@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 17:21:26 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/08 18:38:30 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/15 12:22:23 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,5 +62,21 @@ void	precise_usleep(long usec, t_table *table)
 			while (gettime(MICROSECOND) - start < usec)
 				;
 		}
+	}
+}
+
+void	desincronyse(t_philo *philo)
+{
+	time_t	think;
+
+	if (philo->table_info->nb_philo % 2 == 0)
+	{
+		if (philo->index % 2 == 0)
+			precise_usleep(3e4, philo->table_info);
+	}
+	else
+	{
+		if (philo->index % 2)
+			thinking(philo);
 	}
 }

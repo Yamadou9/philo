@@ -6,22 +6,11 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/31 15:08:00 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/11 18:49:18 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/15 12:15:33 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
-
-void	thinking(t_philo *philo)
-{
-	time_t	think;
-
-	think = philo->table_info->time_eat * 2 - philo->table_info->time_sleep;
-	if (think < 0)
-		think = 0;
-	philo_print(&philo->table_info->write_lock, philo, THINK);
-	precise_usleep(think * 0.42, philo->table_info);
-}
 
 void	free_all(t_table *table)
 {
@@ -33,7 +22,8 @@ void	free_all(t_table *table)
 	my_mutex_destroy(&table->write_lock, table->write_bool);
 	while (i < table->nb_philo)
 	{
-		my_mutex_destroy(&table->philo[i].philo_mutex, table->philo[i].phil_bool);
+		my_mutex_destroy(&table->philo[i].philo_mutex,
+			table->philo[i].phil_bool);
 		my_mutex_destroy(&table->fork[i].fork, table->fork[i].fork_init);
 		i++;
 	}
@@ -67,39 +57,6 @@ void	philo_print(t_mtx *mtx, t_philo *phil, int action)
 	else if (action == DEAD)
 		printf("%ld      %d died\n", time, phil->index);
 	my_mutex_unlock(mtx);
-}
-
-void	eat(t_philo *philo)
-{
-	my_mutex_lock(&philo->f_fork->fork);
-	philo_print(&philo->table_info->write_lock, philo, TAKE_FORK);
-	my_mutex_lock(&philo->s_fork->fork);
-	philo_print(&philo->table_info->write_lock, philo, TAKE_FORK);
-	set_long(&philo->philo_mutex, &philo->no_eat, gettime(MILLISECOND));
-	philo->c_eat++;
-	philo_print(&philo->table_info->write_lock, philo, EAT);
-	precise_usleep(philo->table_info->time_eat, philo->table_info);
-	if (philo->table_info->nb_limit_eat > 0
-		&& philo->c_eat == philo->table_info->nb_limit_eat)
-		set_bool(&philo->philo_mutex, &philo->full, true);
-	my_mutex_unlock(&philo->f_fork->fork);
-	my_mutex_unlock(&philo->s_fork->fork);
-}
-
-void	desincronyse(t_philo *philo)
-{
-	time_t	think;
-
-	if (philo->table_info->nb_philo % 2 == 0)
-	{
-		if (philo->index % 2 == 0)
-			precise_usleep(3e4, philo->table_info);
-	}
-	else
-	{
-		if (philo->index % 2)
-			thinking(philo);
-	}
 }
 
 void	*dinner(void *phil)

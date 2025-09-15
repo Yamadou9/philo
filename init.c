@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 17:17:11 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/11 18:33:36 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/15 12:28:21 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,8 +38,6 @@ void	data_init(t_table *table)
 	int	i;
 
 	i = 0;
-	table->end = false;
-	table->ready = false;
 	table->philo = malloc(sizeof(t_philo) * table->nb_philo);
 	if (!table->philo)
 		exit(EXIT_FAILURE);
@@ -49,19 +47,18 @@ void	data_init(t_table *table)
 		free(table->philo);
 		exit(EXIT_FAILURE);
 	}
-	table->threads_runnig = 0;
-	table->mtx_bool = false;
-	table->write_bool = false;
-	table->mtx_rdy_bool = false;
 	while (i < table->nb_philo)
 		table->fork[i++].fork_init = false;
 	my_mutex_init(&table->mutex, table);
+	table->mtx_bool = true;
 	my_mutex_init(&table->write_lock, table);
+	table->write_bool = true;
 	i = 0;
 	while (i < table->nb_philo)
 	{
 		my_mutex_init(&table->fork[i].fork, table);
 		table->fork[i].fork_id = i;
+		table->fork[i].fork_init = true;
 		i++;
 	}
 	init_philos(table);
@@ -74,10 +71,9 @@ void	create_thread(t_table *table)
 	i = 0;
 	while (i < table->nb_philo)
 	{
-		if (my_pthread_create(&table->philo[i].thread_id, dinner,
-			&table->philo[i], table))
+		if (my_pthread_create(&table->philo[i].thread_id,
+				dinner, &table->philo[i]))
 		{
-
 			while (--i >= 0)
 				my_pthread_join(table->philo[i--].thread_id, NULL, table);
 			my_mutex_unlock(&table->mutex_ready);
@@ -86,7 +82,7 @@ void	create_thread(t_table *table)
 		}
 		i++;
 	}
-	if (my_pthread_create(&table->monitor, check_monitor, table, table))
+	if (my_pthread_create(&table->monitor, check_monitor, table))
 	{
 		while (--i >= 0)
 			my_pthread_join(table->philo[i--].thread_id, NULL, table);
@@ -121,14 +117,12 @@ void	parse_input(t_table *table, char **av, int ac)
 	table->time_sleep = ft_atoi(av[4]) * 1e3;
 	table->time_die = ft_atoi(av[2]) * 1e3;
 	table->nb_philo = ft_atoi(av[1]);
+	table->end = false;
+	table->ready = false;
+	table->threads_runnig = 0;
+	table->mtx_rdy_bool = false;
 	if (ac == 6)
 		table->nb_limit_eat = ft_atoi(av[5]);
 	else
 		table->nb_limit_eat = -1;
-}
-
-void	wait_is_ready(t_mtx *mtx, bool *ready)
-{
-	while (get_bool(mtx, ready) == false)
-		;
 }

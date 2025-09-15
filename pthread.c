@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 15:02:43 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/11 18:28:22 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/15 12:23:42 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,6 @@ void	my_mutex_lock(t_mtx *mtx)
 	}
 }
 
-
 void	my_mutex_unlock(t_mtx *m)
 {
 	int	rc;
@@ -79,7 +78,7 @@ void	my_mutex_destroy(t_mtx *m, bool b)
 	}
 }
 
-int	my_pthread_create(pthread_t *t, void *(*f)(void *), void *arg, t_table *table)
+int	my_pthread_create(pthread_t *t, void *(*f)(void *), void *arg)
 {
 	int	rc;
 
