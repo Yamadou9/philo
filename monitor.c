@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 17:14:56 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/15 12:22:59 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/16 17:27:52 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,14 @@ bool	died(t_philo *philo)
 	ret = false;
 	no_eat = gettime(MILLISECOND)
 		- get_long(&philo->philo_mutex, &philo->no_eat);
-	if (no_eat >= (philo->table_info->time_die / 1e3))
+	if (no_eat >= (philo->table_info->time_die) / 1000)
+	{
+		printf("heure dernier repas %ld\n", get_long(&philo->philo_mutex, &philo->no_eat));
+		printf("heure actuelle %ld\n", gettime(MILLISECOND));
+		printf("temps mourir %ld\n", (philo->table_info->time_die / 1000));
+		printf("temps sans manger %ld\n", no_eat);
 		ret = true;
+	}
 	return (ret);
 }
 
