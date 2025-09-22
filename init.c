@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 17:17:11 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/15 12:36:13 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/22 14:35:39 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,6 @@ void	data_init(t_table *table)
 		table->fork[i].fork_id = i;
 		table->fork[i++].fork_init = true;
 	}
-	init_philos(table);
 }
 
 void	create_thread(t_table *table)
@@ -99,11 +98,13 @@ void	assign_fork(t_philo *philo, t_fork *fork, int i)
 	if (philo->index % 2)
 	{
 		philo->f_fork = &fork[i];
-		philo->s_fork = &fork[(i + 1) % nb_philo];
+		if (nb_philo != 1)
+			philo->s_fork = &fork[(i + 1) % nb_philo];
 	}
 	else
 	{
-		philo->s_fork = &fork[i];
+		if (nb_philo != 1)
+			philo->s_fork = &fork[i];
 		philo->f_fork = &fork[(i + 1) % nb_philo];
 	}
 }

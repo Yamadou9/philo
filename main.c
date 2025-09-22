@@ -6,30 +6,11 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/31 15:08:00 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/15 12:15:33 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/22 14:37:37 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
-
-void	free_all(t_table *table)
-{
-	int	i;
-
-	i = 0;
-	my_mutex_destroy(&table->mutex, table->mtx_bool);
-	my_mutex_destroy(&table->mutex_ready, table->mtx_rdy_bool);
-	my_mutex_destroy(&table->write_lock, table->write_bool);
-	while (i < table->nb_philo)
-	{
-		my_mutex_destroy(&table->philo[i].philo_mutex,
-			table->philo[i].phil_bool);
-		my_mutex_destroy(&table->fork[i].fork, table->fork[i].fork_init);
-		i++;
-	}
-	free(table->philo);
-	free(table->fork);
-}
 
 void	philo_print(t_mtx *mtx, t_philo *phil, int action)
 {
@@ -81,6 +62,20 @@ void	*dinner(void *phil)
 	return (NULL);
 }
 
+void	*one_philo(void *phil)
+{
+	t_philo	*philo;
+
+	philo = (t_philo *)phil;
+	philo->table_info->time = now_time_ms();
+	my_mutex_lock(&philo->f_fork->fork);
+	philo_print(&philo->table_info->write_lock, philo, TAKE_FORK);
+	precise_usleep(philo->table_info->time_die, philo->table_info);
+	my_mutex_unlock(&philo->f_fork->fork);
+	philo_print(&philo->table_info->write_lock, philo, DEAD);
+	return (NULL);
+}
+
 void	start(t_table *table)
 {
 	int	i;
@@ -88,6 +83,13 @@ void	start(t_table *table)
 	i = 0;
 	if (table->nb_limit_eat == 0)
 		return ;
+	if (table->nb_philo == 1)
+	{
+		my_pthread_create(&table->philo[0].thread_id,
+			one_philo, &table->philo[i]);
+		my_pthread_join(table->philo[0].thread_id, NULL, table);
+		return ;
+	}
 	my_mutex_init(&table->mutex_ready, table);
 	table->mtx_rdy_bool = true;
 	my_mutex_lock(&table->mutex_ready);
@@ -111,6 +113,7 @@ int	main(int ac, char **av)
 		return (0);
 	parse_input(&table, av, ac);
 	data_init(&table);
+	init_philos(&table);
 	start(&table);
 	free_all(&table);
 	return (0);

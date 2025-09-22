@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/15 12:14:42 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/16 17:28:04 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/09/22 14:31:45 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,11 +31,6 @@ void	eat(t_philo *philo)
 
 void	thinking(t_philo *philo)
 {
-	time_t	think;
-
-	think = philo->table_info->time_eat * 2 - philo->table_info->time_sleep;
-	if (think < 0)
-		think = 0;
 	philo_print(&philo->table_info->write_lock, philo, THINK);
-	precise_usleep(think * 0.42, philo->table_info);
+	precise_usleep(1000, philo->table_info);
 }
