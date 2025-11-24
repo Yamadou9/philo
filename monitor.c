@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 17:14:56 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/16 17:40:24 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/11/24 15:54:03 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,14 +16,16 @@ bool	died(t_philo *philo)
 {
 	bool	ret;
 	long	no_eat;
+	long	last;
 
 	if (get_bool(&philo->philo_mutex, &philo->full))
 		return (false);
-	ret = false;
-	no_eat = gettime(MILLISECOND)
-		- get_long(&philo->philo_mutex, &philo->no_eat);
+	last = get_long(&philo->philo_mutex, &philo->no_eat);
+	no_eat = gettime(MILLISECOND) - last;
 	if (no_eat >= (philo->table_info->time_die) / 1000)
 		ret = true;
+	else
+		ret = false;
 	return (ret);
 }
 
@@ -85,5 +87,5 @@ bool	threads_run(t_mtx *mtx, long *nb_run, long nb)
 void	wait_is_ready(t_mtx *mtx, bool *ready)
 {
 	while (get_bool(mtx, ready) == false)
-		;
+		usleep(100);
 }

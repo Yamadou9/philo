@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/31 15:08:00 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/22 14:37:37 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/11/24 15:56:54 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,31 +14,32 @@
 
 void	philo_print(t_mtx *mtx, t_philo *phil, int action)
 {
-	time_t	time;
+	long	time_ms;
+	bool	full;
+	bool	end;
 
-	if (phil->full)
-		return ;
-	if (simulation_finish(phil->table_info))
-		return ;
 	my_mutex_lock(mtx);
-	if (get_bool(&phil->table_info->mutex, &phil->table_info->end))
+	full = get_bool(&phil->philo_mutex, &phil->full);
+	end = get_bool(&phil->table_info->mutex, &phil->table_info->end);
+	if (full || end)
 	{
 		my_mutex_unlock(mtx);
 		return ;
 	}
-	time = now_time_ms() - phil->table_info->time;
+	time_ms = now_time_ms() - phil->table_info->time;
 	if (action == TAKE_FORK)
-		printf("%ld      %d has taken a fork\n", time, phil->index);
+		printf("%ld      %d has taken a fork\n", time_ms, phil->index);
 	else if (action == EAT)
-		printf("%ld      %d is eating\n", time, phil->index);
+		printf("%ld      %d is eating\n", time_ms, phil->index);
 	else if (action == SLEEP)
-		printf("%ld      %d is sleeping\n", time, phil->index);
+		printf("%ld      %d is sleeping\n", time_ms, phil->index);
 	else if (action == THINK)
-		printf("%ld      %d is thinking\n", time, phil->index);
+		printf("%ld      %d is thinking\n", time_ms, phil->index);
 	else if (action == DEAD)
-		printf("%ld      %d died\n", time, phil->index);
+		printf("%ld      %d died\n", time_ms, phil->index);
 	my_mutex_unlock(mtx);
 }
+
 
 void	*dinner(void *phil)
 {
@@ -52,7 +53,7 @@ void	*dinner(void *phil)
 	desincronyse(philo);
 	while (!simulation_finish(philo->table_info))
 	{
-		if (philo->full)
+		if (get_bool(&philo->philo_mutex ,&philo->full))
 			break ;
 		eat(philo);
 		philo_print(&philo->table_info->write_lock, philo, SLEEP);
