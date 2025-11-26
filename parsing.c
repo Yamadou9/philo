@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 17:08:45 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/22 14:37:45 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/11/26 11:20:09 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,14 +17,20 @@ void	free_all(t_table *table)
 	int	i;
 
 	i = 0;
-	my_mutex_destroy(&table->mutex, table->mtx_bool);
-	my_mutex_destroy(&table->mutex_ready, table->mtx_rdy_bool);
-	my_mutex_destroy(&table->write_lock, table->write_bool);
+	if (table->mtx_bool == true)
+		my_mutex_destroy(&table->mutex, table->mtx_bool);
+	if (table->mtx_rdy_bool == true)
+		my_mutex_destroy(&table->mutex_ready, table->mtx_rdy_bool);
+	if (table->write_bool == true)
+		my_mutex_destroy(&table->write_lock, table->write_bool);
 	while (i < table->nb_philo)
 	{
-		my_mutex_destroy(&table->philo[i].philo_mutex,
-			table->philo[i].phil_bool);
-		my_mutex_destroy(&table->fork[i].fork, table->fork[i].fork_init);
+		if (table->philo[i].phil_bool)
+			my_mutex_destroy(&table->philo[i].philo_mutex,
+				table->philo[i].phil_bool);
+		if (table->fork[i].fork_init)
+			my_mutex_destroy(&table->fork[i].fork,
+				table->fork[i].fork_init);
 		i++;
 	}
 	free(table->philo);
@@ -57,16 +63,6 @@ int	checks(char **data)
 		i++;
 	}
 	return (1);
-}
-
-void	*my_malloc(size_t size)
-{
-	void	*res;
-
-	res = malloc(size);
-	if (res == NULL)
-		exit(1);
-	return (res);
 }
 
 bool	simulation_finish(t_table *table)

@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/31 16:30:30 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/15 12:44:21 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/11/26 11:23:42 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,6 @@ typedef struct t_table	t_table;
 typedef pthread_mutex_t	t_mtx;
 
 int		checks(char **data);
-
-void	*my_malloc(size_t size);
 
 typedef struct s_fork
 {
@@ -98,8 +96,8 @@ void	incremente_long(t_mtx *mtx, long *nb);
 bool	died(t_philo *philo);
 bool	all_full(t_table *table);
 void	*check_monitor(void *tble);
-void	init_philos(t_table *table);
-void	create_thread(t_table *table);
+int		init_philos(t_table *table);
+int		create_thread(t_table *table);
 void	*dinner(void *phil);
 void	assign_fork(t_philo *philo, t_fork *fork, int i);
 void	wait_is_ready(t_mtx *mtx, bool *ready);
@@ -107,8 +105,8 @@ bool	threads_run(t_mtx *mtx, long *nb_run, long nb);
 long	now_time_ms(void);
 long	passed_ms(long start);
 long	gettime(int code);
-void	parse_input(t_table *table, char **av, int ac);
-void	data_init(t_table *table);
+int		parse_input(t_table *table, char **av, int ac);
+int		data_init(t_table *table);
 void	precise_usleep(long usec, t_table *table);
 void	philo_print(t_mtx *mtx, t_philo *phil, int action);
 int		is_int(char *c);
@@ -116,8 +114,8 @@ int		my_pthread_create(pthread_t *t, void *(*f)(void *), void *arg);
 void	my_mutex_lock(t_mtx *mtx);
 void	my_mutex_unlock(t_mtx *mtx);
 void	my_mutex_destroy(t_mtx *m, bool b);
-void	my_pthread_join(pthread_t t, void **null, t_table *table);
-void	my_mutex_init(t_mtx *mtx, t_table *table);
+int		my_pthread_join(pthread_t t, void **null, t_table *table);
+int		my_mutex_init(t_mtx *mtx, t_table *table);
 void	free_all(t_table *table);
 void	desincronyse(t_philo *philo);
 void	eat(t_philo *philo);

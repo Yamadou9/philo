@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 17:21:26 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/15 12:44:51 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/11/26 11:13:02 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ long	gettime(int code)
 	struct timeval	tv;
 
 	if (gettimeofday(&tv, NULL))
-		exit(1);
+		return (-1);
 	if (code == SECOND)
 		return (tv.tv_sec + (tv.tv_usec / 1e6));
 	else if (code == MILLISECOND)
@@ -38,7 +38,7 @@ long	gettime(int code)
 	else if (code == MICROSECOND)
 		return ((tv.tv_sec * 1e6) + tv.tv_usec);
 	else
-		exit(1);
+		return (-1);
 	return (1337);
 }
 

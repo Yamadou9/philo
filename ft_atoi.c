@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/28 15:56:37 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/22 13:34:09 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/11/26 10:23:25 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,6 @@ long	ft_atoi(const char *nptr)
 		i++;
 	}
 	if (result > INT_MAX || result * signe < 0)
-		exit(1);
+		return (-1);
 	return (result * signe);
 }

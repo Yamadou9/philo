@@ -6,13 +6,13 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/15 12:33:39 by ydembele          #+#    #+#             */
-/*   Updated: 2025/09/15 12:34:18 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/11/26 11:09:04 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	my_pthread_join(pthread_t t, void **null, t_table *table)
+int	my_pthread_join(pthread_t t, void **null, t_table *table)
 {
 	int	rc;
 
@@ -28,8 +28,9 @@ void	my_pthread_join(pthread_t t, void **null, t_table *table)
 		else
 			put_error("Error: pthread_join failed\n");
 		free_all(table);
-		exit(EXIT_FAILURE);
+		return (1);
 	}
+	return (0);
 }
 
 int	my_pthread_create(pthread_t *t, void *(*f)(void *), void *arg)

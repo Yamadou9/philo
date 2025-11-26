@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/31 15:08:00 by ydembele          #+#    #+#             */
-/*   Updated: 2025/11/24 15:56:54 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/11/26 11:37:09 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ void	*dinner(void *phil)
 	desincronyse(philo);
 	while (!simulation_finish(philo->table_info))
 	{
-		if (get_bool(&philo->philo_mutex ,&philo->full))
+		if (get_bool(&philo->philo_mutex, &philo->full))
 			break ;
 		eat(philo);
 		philo_print(&philo->table_info->write_lock, philo, SLEEP);
@@ -77,24 +77,26 @@ void	*one_philo(void *phil)
 	return (NULL);
 }
 
-void	start(t_table *table)
+int	start(t_table *table)
 {
 	int	i;
 
 	i = 0;
 	if (table->nb_limit_eat == 0)
-		return ;
+		return (0);
 	if (table->nb_philo == 1)
 	{
-		my_pthread_create(&table->philo[0].thread_id,
-			one_philo, &table->philo[i]);
+		if (my_pthread_create(&table->philo[0].thread_id, one_philo, &table->philo[i]))
+			return (free_all(table), 1);
 		my_pthread_join(table->philo[0].thread_id, NULL, table);
-		return ;
+		return (0);
 	}
-	my_mutex_init(&table->mutex_ready, table);
+	if (my_mutex_init(&table->mutex_ready, table))
+		return (free_all(table), 1);
 	table->mtx_rdy_bool = true;
 	my_mutex_lock(&table->mutex_ready);
-	create_thread(table);
+	if (create_thread(table))
+		return (1);
 	table->time = now_time_ms();
 	table->ready = true;
 	my_mutex_unlock(&table->mutex_ready);
@@ -104,6 +106,7 @@ void	start(t_table *table)
 		i++;
 	}
 	my_pthread_join(table->monitor, NULL, table);
+	return (0);
 }
 
 int	main(int ac, char **av)
@@ -111,10 +114,13 @@ int	main(int ac, char **av)
 	t_table	table;
 
 	if (ac != 5 && ac != 6)
-		return (0);
-	parse_input(&table, av, ac);
-	data_init(&table);
-	init_philos(&table);
+		return (1);
+	if (parse_input(&table, av, ac))
+		return (1);
+	if (data_init(&table))
+		return (1);
+	if (init_philos(&table))
+		return (1);
 	start(&table);
 	free_all(&table);
 	return (0);
