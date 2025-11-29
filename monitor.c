@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 17:14:56 by ydembele          #+#    #+#             */
-/*   Updated: 2025/11/24 15:54:03 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/11/27 19:27:55 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ void	*check_monitor(void *tble)
 	i = 0;
 	table = (t_table *)tble;
 	while (!threads_run(&table->mutex, &table->threads_runnig, table->nb_philo))
-		;
+		usleep(100);
 	while (!simulation_finish(table))
 	{
 		i = 0;
@@ -68,6 +68,7 @@ void	*check_monitor(void *tble)
 			}
 			i++;
 		}
+		usleep(100);
 	}
 	return (NULL);
 }
@@ -84,8 +85,8 @@ bool	threads_run(t_mtx *mtx, long *nb_run, long nb)
 	return (ret);
 }
 
-void	wait_is_ready(t_mtx *mtx, bool *ready)
+void	wait_is_ready(t_mtx *mtx, bool *ready, bool *end)
 {
-	while (get_bool(mtx, ready) == false)
+	while (!get_bool(mtx, ready) && !get_bool(mtx, end))
 		usleep(100);
 }

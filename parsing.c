@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 17:08:45 by ydembele          #+#    #+#             */
-/*   Updated: 2025/11/26 11:20:09 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/11/29 17:54:25 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void	free_all(t_table *table)
 		my_mutex_destroy(&table->write_lock, table->write_bool);
 	while (i < table->nb_philo)
 	{
-		if (table->philo[i].phil_bool)
+		if (table->philo[i].phil_bool == true)
 			my_mutex_destroy(&table->philo[i].philo_mutex,
 				table->philo[i].phil_bool);
 		if (table->fork[i].fork_init)
@@ -68,4 +68,15 @@ int	checks(char **data)
 bool	simulation_finish(t_table *table)
 {
 	return (get_bool(&table->mutex, &table->end));
+}
+
+int	malloc_fork_philo(t_table *table)
+{
+	table->philo = malloc(sizeof(t_philo) * table->nb_philo);
+	if (!table->philo)
+		return (1);
+	table->fork = malloc(sizeof(t_fork) * table->nb_philo);
+	if (!table->fork)
+		return (free(table->philo), 1);
+	return (0);
 }

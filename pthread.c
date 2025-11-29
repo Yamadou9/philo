@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 15:02:43 by ydembele          #+#    #+#             */
-/*   Updated: 2025/11/26 11:19:00 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/11/29 17:47:52 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ void	put_error(const char *msg)
 	write(2, msg, strlen(msg));
 }
 
-int	my_mutex_init(t_mtx *mtx, t_table *table)
+int	my_mutex_init(t_mtx *mtx)
 {
 	int	err;
 

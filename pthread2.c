@@ -6,13 +6,13 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/15 12:33:39 by ydembele          #+#    #+#             */
-/*   Updated: 2025/11/26 11:09:04 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/11/29 17:46:12 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	my_pthread_join(pthread_t t, void **null, t_table *table)
+int	my_pthread_join(pthread_t t, void **null)
 {
 	int	rc;
 
@@ -27,7 +27,6 @@ int	my_pthread_join(pthread_t t, void **null, t_table *table)
 			put_error("Error: Deadlock (joining self)\n");
 		else
 			put_error("Error: pthread_join failed\n");
-		free_all(table);
 		return (1);
 	}
 	return (0);

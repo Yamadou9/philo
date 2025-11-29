@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/31 15:08:00 by ydembele          #+#    #+#             */
-/*   Updated: 2025/11/26 11:37:09 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/11/29 17:48:09 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,13 +40,16 @@ void	philo_print(t_mtx *mtx, t_philo *phil, int action)
 	my_mutex_unlock(mtx);
 }
 
-
 void	*dinner(void *phil)
 {
 	t_philo	*philo;
 
 	philo = (t_philo *)phil;
-	wait_is_ready(&philo->table_info->mutex_ready, &philo->table_info->ready);
+	wait_is_ready(&philo->table_info->mutex_ready,
+		&philo->table_info->ready, &philo->table_info->end);
+	if (get_bool(&philo->table_info->mutex_ready,
+			&philo->table_info->end) == true)
+		return (NULL);
 	set_long(&philo->philo_mutex, &philo->no_eat, gettime(MILLISECOND));
 	incremente_long(&philo->table_info->mutex,
 		&philo->table_info->threads_runnig);
@@ -86,12 +89,13 @@ int	start(t_table *table)
 		return (0);
 	if (table->nb_philo == 1)
 	{
-		if (my_pthread_create(&table->philo[0].thread_id, one_philo, &table->philo[i]))
-			return (free_all(table), 1);
-		my_pthread_join(table->philo[0].thread_id, NULL, table);
+		if (my_pthread_create(&table->philo[0].thread_id,
+				one_philo, &table->philo[i]))
+			return (1);
+		my_pthread_join(table->philo[0].thread_id, NULL);
 		return (0);
 	}
-	if (my_mutex_init(&table->mutex_ready, table))
+	if (my_mutex_init(&table->mutex_ready))
 		return (free_all(table), 1);
 	table->mtx_rdy_bool = true;
 	my_mutex_lock(&table->mutex_ready);
@@ -101,12 +105,8 @@ int	start(t_table *table)
 	table->ready = true;
 	my_mutex_unlock(&table->mutex_ready);
 	while (i < table->nb_philo)
-	{
-		my_pthread_join(table->philo[i].thread_id, NULL, table);
-		i++;
-	}
-	my_pthread_join(table->monitor, NULL, table);
-	return (0);
+		my_pthread_join(table->philo[i++].thread_id, NULL);
+	return (my_pthread_join(table->monitor, NULL), 0);
 }
 
 int	main(int ac, char **av)
@@ -121,7 +121,8 @@ int	main(int ac, char **av)
 		return (1);
 	if (init_philos(&table))
 		return (1);
-	start(&table);
+	if (start(&table))
+		return (free_all(&table), 1);
 	free_all(&table);
 	return (0);
 }

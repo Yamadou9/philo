@@ -6,7 +6,7 @@
 /*   By: ydembele <ydembele@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/31 16:30:30 by ydembele          #+#    #+#             */
-/*   Updated: 2025/11/26 11:23:42 by ydembele         ###   ########.fr       */
+/*   Updated: 2025/11/29 17:56:48 by ydembele         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ typedef struct t_philo
 	long			c_eat;
 	time_t			no_eat;
 	bool			mort;
+	bool			thread_created;
 	bool			full;
 	t_fork			*f_fork;
 	t_fork			*s_fork;
@@ -86,7 +87,7 @@ typedef struct t_table
 }	t_table;
 
 bool	simulation_finish(t_table *table);
-void	wait_is_ready(t_mtx *mtx, bool *ready);
+void	wait_is_ready(t_mtx *mtx, bool *ready, bool *end);
 long	ft_atoi(const char *nptr);
 bool	get_bool(t_mtx *mtx, bool *value);
 void	set_bool(t_mtx *mtx, bool *dest, bool value);
@@ -100,7 +101,6 @@ int		init_philos(t_table *table);
 int		create_thread(t_table *table);
 void	*dinner(void *phil);
 void	assign_fork(t_philo *philo, t_fork *fork, int i);
-void	wait_is_ready(t_mtx *mtx, bool *ready);
 bool	threads_run(t_mtx *mtx, long *nb_run, long nb);
 long	now_time_ms(void);
 long	passed_ms(long start);
@@ -114,12 +114,13 @@ int		my_pthread_create(pthread_t *t, void *(*f)(void *), void *arg);
 void	my_mutex_lock(t_mtx *mtx);
 void	my_mutex_unlock(t_mtx *mtx);
 void	my_mutex_destroy(t_mtx *m, bool b);
-int		my_pthread_join(pthread_t t, void **null, t_table *table);
-int		my_mutex_init(t_mtx *mtx, t_table *table);
+int		my_pthread_join(pthread_t t, void **null);
+int		my_mutex_init(t_mtx *mtx);
 void	free_all(t_table *table);
 void	desincronyse(t_philo *philo);
 void	eat(t_philo *philo);
 void	thinking(t_philo *philo);
 void	put_error(const char *msg);
+int		malloc_fork_philo(t_table *table);
 
 #endif
